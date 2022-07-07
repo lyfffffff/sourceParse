@@ -2,6 +2,7 @@
 
 export const emptyObject = Object.freeze({})
 
+// isDefine
 // These helpers produce better VM code in JS engines due to their
 // explicitness and function inlining.
 export function isUndef (v: any): boolean %checks {

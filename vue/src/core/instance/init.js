@@ -13,7 +13,7 @@ import { extend, mergeOptions, formatComponentName } from '../util/index'
 let uid = 0
 
 export function initMixin (Vue: Class<Component>) {
-    // 初始化时调用此函数
+    // 初始化函数
   Vue.prototype._init = function (options?: Object) {
     const vm: Component = this
     // 每次构造vue实例时加一
@@ -55,7 +55,7 @@ export function initMixin (Vue: Class<Component>) {
     initRender(vm)
     callHook(vm, 'beforeCreate')
     initInjections(vm) // resolve injections before data/props
-    initState(vm)
+    initState(vm) // 初始化 props 和 data
     initProvide(vm) // resolve provide after data/props
     callHook(vm, 'created')
 

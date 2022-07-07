@@ -34,6 +34,9 @@ if (inBrowser) {
   } catch (e) {}
 }
 
+/**
+ * 此需要延迟评估，因为在 vue-server-renderer 可以设置 VUE_ENV 之前可能需要 vue
+ */
 // this needs to be lazy-evaled because vue may be required before
 // vue-server-renderer can set VUE_ENV
 let _isServer

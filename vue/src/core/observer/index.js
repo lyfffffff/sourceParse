@@ -1,5 +1,6 @@
 /* @flow */
 
+// vue 中观察者的源码
 import Dep from './dep'
 import VNode from '../vdom/vnode'
 import { arrayMethods } from './array'
@@ -13,7 +14,7 @@ import {
   isPrimitive,
   isUndef,
   isValidArrayIndex,
-  isServerRendering
+  isServerRendering // 是否是服务器渲染
 } from '../util/index'
 
 const arrayKeys = Object.getOwnPropertyNames(arrayMethods)
@@ -28,7 +29,9 @@ export function toggleObserving (value: boolean) {
   shouldObserve = value
 }
 
+
 /**
+ * 附加到每个观察对象的观察者类。 附加后，观察者将目标对象的属性键转换为收集依赖项和调度更新的 getter/setter。
  * Observer class that is attached to each observed
  * object. Once attached, the observer converts the target
  * object's property keys into getter/setters that
@@ -39,14 +42,14 @@ export class Observer {
   dep: Dep;
   vmCount: number; // number of vms that have this object as root $data
 
-  constructor (value: any) {
+  constructor (value: any) { // Dep def 
     this.value = value
-    this.dep = new Dep()
+    this.dep = new Dep() // 拥有 addSub removeSub depend notify 方法
     this.vmCount = 0
-    def(value, '__ob__', this)
+    def(value, '__ob__', this) // defineProperty __ob__ 属性
     if (Array.isArray(value)) {
       if (hasProto) {
-        protoAugment(value, arrayMethods)
+        protoAugment(value, arrayMethods) // 修改 value 的__proto__ 指向
       } else {
         copyAugment(value, arrayMethods, arrayKeys)
       }
@@ -57,6 +60,7 @@ export class Observer {
   }
 
   /**
+   * 遍历所有属性并将它们转换为 getter/setter。 仅当值类型为 Object 时才应调用此方法。
    * Walk through all properties and convert them into
    * getter/setters. This method should only be called when
    * value type is Object.
@@ -81,6 +85,7 @@ export class Observer {
 // helpers
 
 /**
+ * 通过使用 __proto__ 拦截原型链来扩充目标对象或数组
  * Augment a target Object or Array by intercepting
  * the prototype chain using __proto__
  */
@@ -103,6 +108,8 @@ function copyAugment (target: Object, src: Object, keys: Array<string>) {
 }
 
 /**
+ * 试图为值设置一个观察值实例
+ * 若成功被观察，返回一个观察者，或若值存在，返回已存在的观察值
  * Attempt to create an observer instance for a value,
  * returns the new observer if successfully observed,
  * or the existing observer if the value already has one.
@@ -112,7 +119,7 @@ export function observe (value: any, asRootData: ?boolean): Observer | void {
     return
   }
   let ob: Observer | void
-  if (hasOwn(value, '__ob__') && value.__ob__ instanceof Observer) {
+  if (hasOwn(value, '__ob__') && value.__ob__ instanceof Observer) { // 若存在观察值属性
     ob = value.__ob__
   } else if (
     shouldObserve &&
@@ -131,6 +138,7 @@ export function observe (value: any, asRootData: ?boolean): Observer | void {
 
 /**
  * Define a reactive property on an Object.
+ * 定义一个对象的反应属性
  */
 export function defineReactive (
   obj: Object,
@@ -153,16 +161,16 @@ export function defineReactive (
     val = obj[key]
   }
 
-  let childOb = !shallow && observe(val)
+  let childOb = !shallow && observe(val) // 若属性值为对象，返回一个观察者
   Object.defineProperty(obj, key, {
     enumerable: true,
     configurable: true,
     get: function reactiveGetter () {
       const value = getter ? getter.call(obj) : val
       if (Dep.target) {
-        dep.depend()
+        dep.depend() // 依赖收集
         if (childOb) {
-          childOb.dep.depend()
+          childOb.dep.depend()  // 收集引用属性的依赖
           if (Array.isArray(value)) {
             dependArray(value)
           }
@@ -188,7 +196,7 @@ export function defineReactive (
         val = newVal
       }
       childOb = !shallow && observe(newVal)
-      dep.notify()
+      dep.notify() // 触发更新
     }
   })
 }

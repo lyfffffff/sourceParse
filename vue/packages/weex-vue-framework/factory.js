@@ -3709,7 +3709,7 @@ function renderMixin (Vue) {
   // install runtime convenience helpers
   installRenderHelpers(Vue.prototype);
 
-  Vue.prototype.$nextTick = function (fn) {
+  Vue.prototype.$nextTick = function (fn) { // 参数是函数
     return nextTick(fn, this)
   };
 

@@ -67,7 +67,8 @@ function createKeyToOldIdx (children, beginIdx, endIdx) {
   return map
 }
 
-export function createPatchFunction (backend) {
+// 这是最后渲染 DOM 的地方
+export function createPatchFunction (backend) { // 渲染 DOM
   let i, j
   const cbs = {}
 
@@ -573,7 +574,7 @@ export function createPatchFunction (backend) {
     }
   }
 
-  function invokeInsertHook (vnode, queue, initial) {
+  function invokeInsertHook (vnode, queue, initial) { // 最终渲染
     // delay insert hooks for component root nodes, invoke them after the
     // element is really inserted
     if (isTrue(initial) && isDef(vnode.parent)) {
@@ -697,7 +698,13 @@ export function createPatchFunction (backend) {
     }
   }
 
-  return function patch (oldVnode, vnode, hydrating, removeOnly) {
+  /**
+   * oldVnode 根元素 this.$el
+   * vnode this._render()
+   * hydrating false
+   * removeOnly false
+   */
+  return function patch (oldVnode, vnode, hydrating, removeOnly) {// TODO从这里开始执行，上面都是内部定义函数，和定义变量，函数名为 patch 故被赋值给 patch
     if (isUndef(vnode)) {
       if (isDef(oldVnode)) invokeDestroyHook(oldVnode)
       return
@@ -711,11 +718,13 @@ export function createPatchFunction (backend) {
       isInitialPatch = true
       createElm(vnode, insertedVnodeQueue)
     } else {
+        // 进这里
       const isRealElement = isDef(oldVnode.nodeType)
       if (!isRealElement && sameVnode(oldVnode, vnode)) {
         // patch existing root node
         patchVnode(oldVnode, vnode, insertedVnodeQueue, null, null, removeOnly)
       } else {
+        // 进这里
         if (isRealElement) {
           // mounting to a real element
           // check if this is server-rendered content and if we can perform
@@ -740,14 +749,14 @@ export function createPatchFunction (backend) {
           }
           // either not server-rendered, or hydration failed.
           // create an empty node and replace it
-          oldVnode = emptyNodeAt(oldVnode)
+          oldVnode = emptyNodeAt(oldVnode) // 进这里
         }
 
         // replacing existing element
         const oldElm = oldVnode.elm
         const parentElm = nodeOps.parentNode(oldElm)
 
-        // create new node
+        // create new node 创建一个新的虚拟DOM
         createElm(
           vnode,
           insertedVnodeQueue,
@@ -758,7 +767,7 @@ export function createPatchFunction (backend) {
           nodeOps.nextSibling(oldElm)
         )
 
-        // update parent placeholder node element, recursively
+        // update parent placeholder node element, recursively 不进入
         if (isDef(vnode.parent)) {
           let ancestor = vnode.parent
           const patchable = isPatchable(vnode)
@@ -789,6 +798,7 @@ export function createPatchFunction (backend) {
         }
 
         // destroy old node
+        // Vue 的虚拟DOM代替新DOM
         if (isDef(parentElm)) {
           removeVnodes([oldVnode], 0, 0)
         } else if (isDef(oldVnode.tag)) {

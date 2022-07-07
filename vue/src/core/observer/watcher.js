@@ -91,6 +91,7 @@ export default class Watcher {
         )
       }
     }
+    // undefined
     this.value = this.lazy
       ? undefined
       : this.get()
@@ -104,16 +105,22 @@ export default class Watcher {
     let value
     const vm = this.vm
     try {
-      value = this.getter.call(vm, vm)
+      value = this.getter.call(vm, vm)  // 使用新的data更新虚拟数
+    //   为 () => {
+    //     vm._update(vm._render(), hydrating)
+    //   } 没有返回值，故value为undefined
     } catch (e) {
       if (this.user) {
         handleError(e, vm, `getter for watcher "${this.expression}"`)
       } else {
         throw e
       }
-    } finally {
+    } finally { // 但是会执行 finally
       // "touch" every property so they are all tracked as
       // dependencies for deep watching
+      /***
+       * “触摸”每个属性，因此它们都被跟踪为依赖项以进行深度观察
+       */
       if (this.deep) {
         traverse(value)
       }
@@ -180,6 +187,7 @@ export default class Watcher {
   run () {
     if (this.active) {
       const value = this.get()
+      // value 一直为 undefined  故下列不执行
       if (
         value !== this.value ||
         // Deep watchers and watchers on Object/Arrays should fire even
